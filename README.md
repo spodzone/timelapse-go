@@ -1,8 +1,6 @@
 # timelapse-go
 ## Timelapse image temporal linear interpolator
 
-*Warning*: Project very incomplete. Does nothing - yet. Give it time...
-
 ### History
 
 A long time ago I wrote the original timelapse.py, a couple of scripts to allow interpolating an image sequence - for example, in case of dropped frames or simply requiring frames in a timelapse sequence (without dropping the framerate too low).
