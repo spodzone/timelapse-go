@@ -30,7 +30,7 @@ func getCtime(fname string) TLIFile {
 
 	ex, err := exif.Decode(f)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	tm, err := ex.DateTime()
 	if err == nil {
