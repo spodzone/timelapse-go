@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image"
 	"log"
 	"os"
 	"path/filepath"
@@ -10,6 +11,8 @@ import (
 
 	fun "github.com/luraim/fun"
 	exif "github.com/rwcarlsen/goexif/exif"
+
+	imaging "github.com/disintegration/imaging"
 )
 
 // tuple pair linking files and their mtime
@@ -98,6 +101,19 @@ func findfiles(dir string) []string {
 	return vals
 }
 
+func imageBlend(task TLItask) *image.NRGBA {
+	imageA, err := imaging.Open(task.afile, imaging.AutoOrientation(true))
+	if err != nil {
+		log.Fatal(fmt.Sprintf("Error opening %f\n", task.afile))
+	}
+	imageB, err := imaging.Open(task.bfile, imaging.AutoOrientation(true))
+	if err != nil {
+		log.Fatal(fmt.Sprintf("Error opening %f\n", task.bfile))
+	}
+	dstImage := imaging.Overlay(imageA, imageB, image.Pt(0, 0), task.alpha)
+	return dstImage
+}
+
 func main() {
 	indir := os.Args[1]
 	framestr := os.Args[2]
@@ -105,15 +121,21 @@ func main() {
 	frames, _ := strconv.Atoi(framestr)
 	noframes := int64(frames)
 	dirlist := findfiles(indir)
-	fmt.Printf("Would generate %d files into %s\n", frames, outdir)
-	fmt.Println("Found files: ", dirlist)
+	fmt.Printf("Genearting %d frames from %s into %s\n", frames, indir, outdir)
 	moredata := fun.Map(dirlist, getCtime)
-	fmt.Println("Sorting data...")
 	sort.Slice(moredata, func(i int, j int) bool {
 		return moredata[i].mtime < moredata[j].mtime
 	})
-	fmt.Println(moredata)
 	tasks := files2tasks(moredata, noframes)
-	fmt.Println("Task list")
-	fmt.Println(tasks)
+	fmt.Println("Interpolating")
+	for i, t := range tasks {
+		img := imageBlend(t)
+		fname := fmt.Sprintf("%s/img%05d.jpg", outdir, i)
+		err := imaging.Save(img, fname, imaging.JPEGQuality(99))
+		fmt.Printf("Saved image %d, %f between %s and %s\n", i, t.alpha, t.afile, t.bfile)
+		if err != nil {
+			log.Fatal(fmt.Sprintf("Error saving image %d, %f between %s and %s: %s\n", i, t.alpha, t.afile, t.bfile, err))
+		}
+	}
+	fmt.Println("All done")
 }
