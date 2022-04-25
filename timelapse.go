@@ -86,7 +86,6 @@ func files2tasks(data []TLIFile, noframes int64) []TLItask {
 		} else {
 			alpha = (tstmp - float64(data[n].mtime)) / float64(data[m].mtime-data[n].mtime)
 		}
-		fmt.Printf("i=%d, n=%d, m=%d, tstmp=%f, mtimes=[%d,%d], alpha=%f\n", i, n, m, tstmp, data[n].mtime, data[m].mtime, alpha)
 		task.afile = data[n].fname
 		task.bfile = data[m].fname
 		task.alpha = alpha
