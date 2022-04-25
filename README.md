@@ -27,4 +27,6 @@ Assuming you have a lot of JPEG images in `indir` and an empty directory `outdir
 
 `$ ./timelapse.exe indir noframes outdir`
 
+`$ ffmpeg -i outdir/img%05d.jpg -y -qscale 0 -r 25 timelapse.flv `
+
 That should be it.
